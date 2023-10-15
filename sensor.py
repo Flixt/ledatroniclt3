@@ -28,20 +28,21 @@ class LedatronicComm:
         self.host = host;
         self.port = port;
         self.current_temp = None;
-        self.max_temp = None;
-        self.grundglut = None;
-        self.trend = None;
-        self.abbrande = None;
-        self.heizfehler = None;
         self.current_state = None;
         self.current_valve_pos_target = None;
         self.current_valve_pos_actual = None;
-        self.last_update = None;
-        self.puffer_unten = None;
-        self.puffer_oben = None;
-        self.vorlauf_temp = None;
-        self.schorn_temp = None;
-        self.ventilator = None;
+        
+        # self.max_temp = None;
+        # self.grundglut = None;
+        # self.trend = None;
+        # self.abbrande = None;
+        # self.heizfehler = None;
+        # self.last_update = None;
+        # self.puffer_unten = None;
+        # self.puffer_oben = None;
+        # self.vorlauf_temp = None;
+        # self.schorn_temp = None;
+        # self.ventilator = None;
 
     def update(self):
         # update at most every 10 seconds
@@ -75,7 +76,7 @@ class LedatronicComm:
                     raise Exception("Interrupted");
                 data += next;
             
-            #_LOGGER.error(str(("DATA is: ", data)));
+            # _LOGGER.error(str(("DATA is: ", data)));
             self.current_temp = int.from_bytes(data[0:2], byteorder='big');
         
             self.current_valve_pos_target = data[2];
@@ -97,24 +98,24 @@ class LedatronicComm:
             else:
                 self.current_state = "Unbekannter Status: " + str(stateVal);
 
-            self.max_temp = data[9] + (data[8] * 255);
-            self.grundglut = data[11];
-            self.trend = data[12];
-            self.abbrande = data[26] + (data[25] * 255);
-            self.heizfehler = data[28] + (data[27] * 255);
-            self.puffer_unten = data[34];
-            self.puffer_oben = data[36];
-            self.vorlauf_temp = data[37];
-            self.schorn_temp = data[47] + (data[46] * 255);
+            # self.max_temp = data[9] + (data[8] * 255);
+            # self.grundglut = data[11];
+            # self.trend = data[12];
+            # self.abbrande = data[26] + (data[25] * 255);
+            # self.heizfehler = data[28] + (data[27] * 255);
+            # self.puffer_unten = data[34];
+            # self.puffer_oben = data[36];
+            # self.vorlauf_temp = data[37];
+            # self.schorn_temp = data[47] + (data[46] * 255);
 
-            self.ventilator = data[50];
-            stateVent = data[50];
-            if stateVent == 0:
-                self.ventilator = "off";
-            elif stateVent == 1:
-                self.ventilator = "on";
-            else:
-                self.ventilator = "unknown"
+            # self.ventilator = data[50];
+            # stateVent = data[50];
+            # if stateVent == 0:
+            #     self.ventilator = "off";
+            # elif stateVent == 1:
+            #     self.ventilator = "on";
+            # else:
+            #     self.ventilator = "unknown"
 
             break;
 
@@ -217,272 +218,50 @@ class LedatronicValveSensor(Entity):
         """Show Device Attributes."""
         return { "Actual Position": self.comm.current_valve_pos_actual }
 
-class LedatronicMaxTemp(Entity):
-    """Representation of the LedaTronic max temperatrure."""
+# class LedatronicTrend(Entity):
+#     """Representation of the LedaTronic trend."""
 
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
+#     def __init__(self, comm):
+#         """Initialize the sensor."""
+#         self.comm = comm;
 
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_maxtemp"
+#     @property
+#     def name(self):
+#         """Return the name of this sensor."""
+#         return "ledatronic_trend"
 
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.max_temp
+#     @property
+#     def state(self):
+#         """Return the current state of the entity."""
+#         return self.comm.trend;
 
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return TEMP_CELSIUS
+#     def update(self):
+#         """Retrieve latest state."""
+#         try:
+#             self.comm.update();
+#         except Exception:
+#             _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
 
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
+# class LedatronicAbbrande(Entity):
+#     """Representation of the LedaTronic Abbrände."""
 
-class LedatronicGrundglut(Entity):
-    """Representation of the LedaTronic grundglut temperatrure."""
+#     def __init__(self, comm):
+#         """Initialize the sensor."""
+#         self.comm = comm;
 
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
+#     @property
+#     def name(self):
+#         """Return the name of this sensor."""
+#         return "ledatronic_abbrande"
 
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_grundglut"
+#     @property
+#     def state(self):
+#         """Return the current state of the entity."""
+#         return self.comm.abbrande;
 
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.grundglut
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return TEMP_CELSIUS
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicTrend(Entity):
-    """Representation of the LedaTronic trend."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_trend"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.trend;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicAbbrande(Entity):
-    """Representation of the LedaTronic Abbrände."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_abbrande"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.abbrande;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicHeizfehler(Entity):
-    """Representation of the LedaTronic Heizfehler."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_heizfehler"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.heizfehler;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicPufferUnten(Entity):
-    """Representation of the LedaTronic valve sensor."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_puffer_unten"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.puffer_unten;
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return TEMP_CELSIUS;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicPufferOben(Entity):
-    """Representation of the LedaTronic valve sensor."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_puffer_oben"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.puffer_oben;
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return TEMP_CELSIUS;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicVorlaufTemp(Entity):
-    """Representation of the LedaTronic valve sensor."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_vorlauf_temp"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.vorlauf_temp;
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return TEMP_CELSIUS;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicSchornTemp(Entity):
-    """Representation of the LedaTronic valve sensor."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_schorn_temp"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.schorn_temp;
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return TEMP_CELSIUS;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
-
-class LedatronicVentilator(Entity):
-    """Representation of the LedaTronic valve sensor."""
-
-    def __init__(self, comm):
-        """Initialize the sensor."""
-        self.comm = comm;
-
-    @property
-    def name(self):
-        """Return the name of this sensor."""
-        return "ledatronic_ventilator"
-
-    @property
-    def state(self):
-        """Return the current state of the entity."""
-        return self.comm.ventilator;
-
-    def update(self):
-        """Retrieve latest state."""
-        try:
-            self.comm.update();
-        except Exception:
-            _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
+#     def update(self):
+#         """Retrieve latest state."""
+#         try:
+#             self.comm.update();
+#         except Exception:
+#             _LOGGER.error("Failed to get LEDATRONIC LT3 Wifi state.")
