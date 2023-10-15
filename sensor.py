@@ -75,7 +75,8 @@ class LedatronicComm:
                     raise Exception("Interrupted");
                 data += next;
             
-            self.current_temp = data[1] + (data[55] * 255);
+            #_LOGGER.error(str(("DATA is: ", data)));
+            self.current_temp = int.from_bytes(data[0:2], byteorder='big');
         
             self.current_valve_pos_target = data[2];
             self.current_valve_pos_actual = data[3];
@@ -127,16 +128,6 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     LEDA_SENSORS.append(LedatronicTemperatureSensor(comm))
     LEDA_SENSORS.append(LedatronicStateSensor(comm))
     LEDA_SENSORS.append(LedatronicValveSensor(comm))
-    LEDA_SENSORS.append(LedatronicMaxTemp(comm))
-    LEDA_SENSORS.append(LedatronicGrundglut(comm))
-    LEDA_SENSORS.append(LedatronicTrend(comm))
-    LEDA_SENSORS.append(LedatronicAbbrande(comm))
-    LEDA_SENSORS.append(LedatronicHeizfehler(comm))
-    LEDA_SENSORS.append(LedatronicPufferUnten(comm))
-    LEDA_SENSORS.append(LedatronicPufferOben(comm))
-    LEDA_SENSORS.append(LedatronicVorlaufTemp(comm))
-    LEDA_SENSORS.append(LedatronicSchornTemp(comm))
-    LEDA_SENSORS.append(LedatronicVentilator(comm))
     add_entities(LEDA_SENSORS)
 
 class LedatronicTemperatureSensor(Entity):
